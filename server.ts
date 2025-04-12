@@ -42,7 +42,7 @@ if (process.env.NODE_ENV !== "production") {
   });
 
   // APIリクエスト以外は全てReact開発サーバーにリダイレクト
-  app.use("*", (req: Request, res: Response) => {
+  app.use("/", (req: Request, res: Response) => {
     res.redirect("http://localhost:5173" + req.originalUrl);
   });
 } else {
@@ -50,7 +50,7 @@ if (process.env.NODE_ENV !== "production") {
   app.use(express.static(path.join(__dirname, "frontend/dist")));
 
   // その他のルートはReactのルーティングに任せる
-  app.get("*", (req: Request, res: Response) => {
+  app.get("/", (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, "frontend/dist", "index.html"));
   });
 }
