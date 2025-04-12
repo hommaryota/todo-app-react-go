@@ -114,7 +114,7 @@
 
 - Express: [http://localhost:3000](http://localhost:3000)
 - React: [http://localhost:5173](http://localhost:5173)
-- Go: [http://localhost:8080](http://localhost:8080)
+- Go: [http://localhost:8081](http://localhost:8081)
 
 メインのアクセスは [http://localhost:3000](http://localhost:3000) から行ってください。
 
@@ -336,7 +336,7 @@
           aria-expanded:text-text-100 h-8 w-8 rounded-md active:scale-95 backdrop-blur-md" type="button" aria-label="クリップボードにコピー" data-state="closed"><div class="relative *:transition"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 256 256" class="scale-100"><path d="M200,32H163.74a47.92,47.92,0,0,0-71.48,0H56A16,16,0,0,0,40,48V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V48A16,16,0,0,0,200,32Zm-72,0a32,32,0,0,1,32,32H96A32,32,0,0,1,128,32Zm72,184H56V48H82.75A47.93,47.93,0,0,0,80,64v8a8,8,0,0,0,8,8h80a8,8,0,0,0,8-8V64a47.93,47.93,0,0,0-2.75-16H200Z"></path></svg><div class="absolute inset-0 flex items-center justify-center"><label class="select-none inline-flex gap-3 cursor-pointer text-left"><div class="relative"><input class="sr-only peer" type="checkbox"/><div class="w-4 h-4 overflow-hidden flex items-center justify-center border rounded transition-colors duration-100 ease-in-out peer-focus-visible:ring-1 ring-offset-2 ring-offset-bg-300 ring-accent-main-100 bg-bg-000 border-border-200 hover:border-border-100 cursor-pointer rounded-full scale-50 opacity-0"></div></div><span class="leading-none sr-only"></span></label></div></div></button></div></div><div class="text-text-500 text-xs p-3.5 pb-0">bash</div><div class=""><pre class="code-block__code !my-0 !rounded-lg !text-sm !leading-relaxed"><code class="language-bash"><span><span class="token"># Macの場合</span><span>
 </span></span><span><span></span><span class="token">lsof</span><span> -i :3000
 </span></span><span><span></span><span class="token">lsof</span><span> -i :5173
-</span></span><span><span></span><span class="token">lsof</span><span> -i :8080</span></span></code></pre></div></div></pre>
+</span></span><span><span></span><span class="token">lsof</span><span> -i :8081</span></span></code></pre></div></div></pre>
 
 ### API リクエストがエラーになる場合
 
