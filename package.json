@@ -2,11 +2,26 @@
   "name": "todo-app-react-go",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "build:frontend": "cd frontend && npm run build",
+    "build:all": "npm run build && npm run build:frontend",
+    "start": "node dist/server.js",
+    "dev": "env NODE_ENV=development ts-node server.ts",
+    "prod": "env NODE_ENV=production npm run build:all && npm start"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.14.1",
+    "concurrently": "^9.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
 }
