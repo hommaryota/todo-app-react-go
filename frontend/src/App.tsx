@@ -2,8 +2,16 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
+import supabase from "./supabaseClient";
 
-function App() {
+type TodoItem = {
+  id: number;
+  created_at: string;
+  title: string;
+  status: boolean;
+};
+
+const App = () => {
   const [count, setCount] = useState(0);
   const [message, setMessage] = useState("");
   const func = async () => {
@@ -12,10 +20,23 @@ function App() {
     setMessage(data.message);
   };
 
+  const [data, setData] = useState<TodoItem[]>([]);
+  const func2 = async () => {
+    const { data, error } = await supabase.from("todo_items").select("*");
+    setData(data);
+  };
+
   return (
     <>
       <button onClick={func}>test</button>
       <p>{message}</p>
+      <button onClick={func2}>test2</button>
+      {data.map((item) => (
+        <div key={item.id}>
+          <p>{item.title}</p>
+          <p>{item.status}</p>
+        </div>
+      ))}
       <div>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
@@ -38,6 +59,6 @@ function App() {
       </p>
     </>
   );
-}
+};
 
 export default App;
