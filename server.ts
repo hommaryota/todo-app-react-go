@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import { createProxyMiddleware } from "http-proxy-middleware";
 import path from "path";
 
 const app = express();
@@ -8,19 +9,27 @@ const port: number = 3000;
 app.use(express.json());
 
 // GoバックエンドへのAPIリクエストを転送
-app.use("/api", (req: Request, res: Response) => {
-  // Docker環境ではサービス名でアクセスする
-  res.redirect(`http://go-backend:8081${req.url}`);
-});
+app.use(
+  "/api",
+  createProxyMiddleware({
+    target: "http://go-backend:8081",
+    changeOrigin: true,
+  })
+);
 
 // 開発環境の場合
 if (process.env.NODE_ENV !== "production") {
   console.log("Starting in development mode...");
 
   // Docker環境ではサービス名でアクセス
-  app.use("/", (req: Request, res: Response) => {
-    res.redirect(`http://react-frontend:5173${req.originalUrl}`);
-  });
+  app.use(
+    "/",
+    createProxyMiddleware({
+      target: "http://react-frontend:5173",
+      changeOrigin: true,
+      ws: true,
+    })
+  );
 } else {
   // 本番環境では静的ファイルを配信
   app.use(express.static(path.join(__dirname, "frontend/dist")));
