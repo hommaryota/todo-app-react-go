@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -26,6 +26,20 @@ const App = () => {
     setData(data);
   };
 
+  const [isPending, startTransition] = useTransition();
+  const [arr, setArr] = useState<number[]>([]);
+  const [text, setText] = useState<string>("");
+  const func3 = () => {
+    setText("test");
+    startTransition(() => {
+      const arr = [];
+      for (let i = 0; i < 40000; i++) {
+        arr.push(i);
+      }
+      setArr(arr);
+    });
+  };
+
   return (
     <>
       <button onClick={func}>test</button>
@@ -37,6 +51,13 @@ const App = () => {
           <p>{item.status}</p>
         </div>
       ))}
+      <button onClick={func3}>test3</button>
+      <div>
+        <div>{text}</div>
+        {isPending
+          ? "pending"
+          : arr.map((item, index) => <p id={index.toString()}>{item}</p>)}
+      </div>
       <div>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
