@@ -10,4 +10,7 @@ export default defineConfig({
     strictPort: true,
     allowedHosts: ["react-frontend", "express-server", "localhost", "all"],
   },
+  resolve: {
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
+  },
 });
