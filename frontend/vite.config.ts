@@ -9,6 +9,12 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     allowedHosts: ["react-frontend", "express-server", "localhost", "all"],
+    proxy: {
+      "/api": {
+        target: "http://express-server:8081",
+        changeOrigin: true,
+      },
+    },
   },
   resolve: {
     extensions: [".js", ".jsx", ".ts", ".tsx"],
