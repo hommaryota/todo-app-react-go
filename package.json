@@ -15,10 +15,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "http-proxy-middleware": "^3.0.5"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
+    "@types/http-proxy-middleware": "^0.19.3",
     "@types/node": "^22.14.1",
     "concurrently": "^9.1.2",
     "ts-node": "^10.9.2",

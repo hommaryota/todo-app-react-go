@@ -1,43 +1,181 @@
+import {
+  Button,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+} from "@mui/material";
+import Layout from "./components/Layout/Layout";
+import Header from "./features/Header/Header";
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import { Send } from "@mui/icons-material";
+import ListWrap from "./components/ListWrap/ListWrap";
 
-function App() {
-  const [count, setCount] = useState(0);
-  const [message, setMessage] = useState("");
-  const func = async () => {
-    const res = await fetch("http://localhost:8081/api/hello");
+interface Lists {
+  id: number;
+  text: string;
+  completed: boolean;
+}
+
+interface ApiResponse {
+  success: boolean;
+  message: string;
+  updatedItem: Lists & {
+    updatedAt: string;
+  };
+}
+
+const App = () => {
+  const [text, setText] = useState("");
+  const [lists, setLists] = useState<Lists[]>([]);
+  const replaceText = text.replace(/[\s\u3000]/g, "");
+
+  const test = async () => {
+    const res = await fetch("http://localhost:8081/api/add");
     const data = await res.json();
-    setMessage(data.message);
+    console.log(data);
+  };
+
+  const onChangeTextField = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setText(e.target.value);
+  };
+
+  const updateTodoItem = async (todo: Lists): Promise<ApiResponse> => {
+    try {
+      const res = await fetch(`http://localhost:8081/api/add/${todo.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(todo),
+      });
+
+      if (!res.ok) {
+        throw new Error(`APIエラー: ${res.status}`);
+      }
+
+      return await res.json();
+    } catch (error) {
+      console.error("TODO更新エラー:", error);
+      throw error;
+    }
+  };
+
+  const handleUpdateTodo = async () => {
+    // setLoading(true);
+    // setMessage("");
+
+    try {
+      // 更新前にトグル状態を反転
+      // const updatedTodo = { ...todo, completed: !todo.completed };
+      const id =
+        lists.length === 0 ? 1 : Math.max(...lists.map((item) => item.id)) + 1;
+
+      const updatedTodo = {
+        id: id,
+        text: text,
+        completed: false,
+      };
+
+      // APIで更新
+      const response = await updateTodoItem(updatedTodo);
+
+      // APIからの応答でリストを更新
+      setLists((prevList) =>
+        prevList.map((item) =>
+          item.id === response.updatedItem.id ? response.updatedItem : item
+        )
+      );
+
+      // setMessage(
+      //   `${response.updatedItem.text}を${
+      //     response.updatedItem.completed ? "完了" : "未完了"
+      //   }に更新しました`
+      // );
+    } catch (err) {
+      // setMessage("更新に失敗しました");
+      // console.error(err);
+    } finally {
+      // setLoading(false);
+    }
+  };
+
+  const handleDeleteList = (id: number) => {
+    const newList = lists.filter((list) => list.id !== id);
+    setLists(newList);
   };
 
   return (
     <>
-      <button onClick={func}>test</button>
-      <p>{message}</p>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Header />
+      <Layout>
+        <div onClick={test}>aaa</div>
+        <ListWrap>
+          <div>
+            <TextField
+              id="outlined-password-input"
+              label="message"
+              type="text"
+              autoComplete="current-password"
+              onChange={onChangeTextField}
+              value={text}
+            />
+            <Button
+              variant="outlined"
+              disabled={!replaceText}
+              onClick={handleUpdateTodo}
+              endIcon={<Send />}
+            >
+              追加
+            </Button>
+          </div>
+
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>text</TableCell>
+                  <TableCell align="right">completed</TableCell>
+                  <TableCell align="right">
+                    <Button variant="text">delete</Button>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {lists.map((list) => (
+                  <TableRow
+                    key={list.id}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {list.text}
+                    </TableCell>
+                    <TableCell align="right">
+                      <Button variant="text">completed</Button>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Button
+                        variant="text"
+                        onClick={() => handleDeleteList(list.id)}
+                      >
+                        delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </ListWrap>
+      </Layout>
     </>
   );
-}
+};
 
 export default App;
