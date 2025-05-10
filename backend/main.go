@@ -9,8 +9,6 @@ import (
 	"github.com/yourusername/express-react-go-app/middleware"
 )
 
-
-
 func main() {
 	// ルーターの作成
 	mux := http.NewServeMux()
