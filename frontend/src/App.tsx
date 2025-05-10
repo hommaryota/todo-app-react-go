@@ -14,7 +14,7 @@ import Header from "./features/Header/Header";
 import { useState } from "react";
 import { Send } from "@mui/icons-material";
 import ListWrap from "./components/ListWrap/ListWrap";
-import { Count } from "./components/Count/Count";
+import { CountArea } from "./components/CountArea/CountArea";
 
 interface Lists {
   id: number;
@@ -175,7 +175,7 @@ const App: React.FC = () => {
           </TableContainer>
         </ListWrap>
       </Layout>
-      <Count />
+      <CountArea />
     </>
   );
 };

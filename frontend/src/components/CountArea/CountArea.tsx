@@ -1,19 +1,29 @@
 import { Button, Stack } from "@mui/material";
+import useSWR from "swr";
+import { fetcher } from "../../utils/fetcher";
+import { Count } from "../../types/api";
 import { useState } from "react";
 
-export const Count: React.FC = () => {
-  const [count, setCount] = useState(0);
+export const CountArea: React.FC = () => {
+  const { data } = useSWR<Count, Error>(
+    "http://localhost:8081/api/count",
+    fetcher
+  );
+  const [count, setCount] = useState(data);
 
-  const handleCount = async (type: string) => {
-    console.log(type);
+  const handleCount = async (type: "increment" | "decrement") => {
     try {
-      const response = await fetch("http://localhost:8081/api/countup");
+      const response =
+        type === "increment"
+          ? await fetch("http://localhost:8081/api/countup")
+          : await fetch("http://localhost:8081/api/countdown");
+
       if (!response.ok) {
         throw new Error(`APIエラー: ${response.status}`);
       }
-      const data = await response.json();
-      if (data && typeof data.count === "number") {
-        setCount(data.count);
+      const data: Count = await response.json();
+      if (data) {
+        setCount(data);
       } else {
         console.error("countプロパティがありません:", data);
       }
@@ -41,7 +51,7 @@ export const Count: React.FC = () => {
             -
           </Button>
         </Stack>
-        <span>Count:{count}</span>
+        <span>Count:{count?.count ?? 0}</span>
       </div>
     </>
   );

@@ -18,7 +18,8 @@
     "@supabase/supabase-js": "^2.49.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "sass": "^1.87.0"
+    "sass": "^1.87.0",
+    "swr": "^2.3.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
