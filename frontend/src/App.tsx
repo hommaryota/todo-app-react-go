@@ -35,12 +35,6 @@ const App: React.FC = () => {
   const [lists, setLists] = useState<Lists[]>([]);
   const replaceText = text.replace(/[\s\u3000]/g, "");
 
-  const test = async () => {
-    const res = await fetch("http://localhost:8081/api/add");
-    const data = await res.json();
-    console.log(data);
-  };
-
   const onChangeTextField = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -69,12 +63,7 @@ const App: React.FC = () => {
   };
 
   const handleUpdateTodo = async () => {
-    // setLoading(true);
-    // setMessage("");
-
     try {
-      // 更新前にトグル状態を反転
-      // const updatedTodo = { ...todo, completed: !todo.completed };
       const id =
         lists.length === 0 ? 1 : Math.max(...lists.map((item) => item.id)) + 1;
 
@@ -83,27 +72,18 @@ const App: React.FC = () => {
         text: text,
         completed: false,
       };
-
       // APIで更新
       const response = await updateTodoItem(updatedTodo);
-
       // APIからの応答でリストを更新
       setLists((prevList) =>
         prevList.map((item) =>
           item.id === response.updatedItem.id ? response.updatedItem : item
         )
       );
-
-      // setMessage(
-      //   `${response.updatedItem.text}を${
-      //     response.updatedItem.completed ? "完了" : "未完了"
-      //   }に更新しました`
-      // );
     } catch (err) {
-      // setMessage("更新に失敗しました");
-      // console.error(err);
+      console.error(err);
     } finally {
-      // setLoading(false);
+      console.log(1);
     }
   };
 
@@ -116,7 +96,6 @@ const App: React.FC = () => {
     <>
       <Header />
       <Layout>
-        <div onClick={test}>aaa</div>
         <ListWrap>
           <div>
             <TextField
