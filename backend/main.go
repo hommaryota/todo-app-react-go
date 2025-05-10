@@ -1,25 +1,35 @@
 package main
 
 import (
+	"log"
 	"net/http"
 )
 
-func middleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
-		w.Header().Set("Access-Control-Allow-Origin","*")
-		w.Header().Set("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS")
+// CORSミドルウェア - すべてのハンドラーにCORSヘッダーを追加
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// CORSヘッダーを設定
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, Authorization")
-
+		
+		// OPTIONSリクエストの場合は早期に返す
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
-		next.ServeHTTP(w,r)
+		
+		// 次のハンドラーに処理を渡す
+		next.ServeHTTP(w, r)
 	})
 }
 
-func main(){
+func main() {
+	// ルーターの作成
 	mux := http.NewServeMux()
 
-	http.ListenAndServe(":8081",middleware(mux))
+
+	// サーバー起動（CORSミドルウェア適用）
+	log.Println("サーバーを8081ポートで起動中...")
+	log.Fatal(http.ListenAndServe(":8081", corsMiddleware(mux)))
 }
