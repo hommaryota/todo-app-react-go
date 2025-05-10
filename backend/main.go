@@ -3,11 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
+	"log"
 	"net/http"
+	"regexp"
+	"strconv"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 // TODOアイテム構造体
@@ -24,62 +25,147 @@ const (
 	TODO_TABLE   = "todo_items"     // テーブル名
 )
 
+// CORSミドルウェア - すべてのハンドラーにCORSヘッダーを追加
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// CORSヘッダーを設定
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, Authorization")
+		
+		// OPTIONSリクエストの場合は早期に返す
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		
+		// 次のハンドラーに処理を渡す
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
-	r := gin.Default()
-
-	// CORS設定
-	r.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, Authorization")
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusNoContent)
-			return
-		}
-		c.Next()
-	})
-
+	// ルーターの作成
+	mux := http.NewServeMux()
+	
 	// 既存のGETエンドポイント
-	r.GET("/api/add", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Hello from Go Backend!",
-		})
-	})
-
-	// PUTエンドポイント - Supabase連携
-	r.PUT("/api/add/:id", func(c *gin.Context) {
-		// リクエストボディをバインド
-		var todo TodoItem
-		if err := c.ShouldBindJSON(&todo); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"error":   "無効なリクエストデータ: " + err.Error(),
-			})
+	mux.HandleFunc("/api/add", func(w http.ResponseWriter, r *http.Request) {
+		// GETリクエスト以外は拒否
+		if r.Method != http.MethodGet {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
-
+		
+		// レスポンスの作成
+		response := map[string]interface{}{
+			"message": "Hello from Go Backend!",
+		}
+		
+		// JSONヘッダーの設定
+		w.Header().Set("Content-Type", "application/json")
+		
+		// JSONエンコードとレスポンス送信
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			log.Printf("エラー: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+	})
+	
+	// カウントアップのエンドポイント追加
+	mux.HandleFunc("/api/countup", func(w http.ResponseWriter, r *http.Request) {
+		// GETリクエスト以外は拒否
+		if r.Method != http.MethodGet {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		
+		// レスポンスの作成
+		response := map[string]interface{}{
+			"count": 1,
+			"message": "countが実行されました",
+		}
+		
+		// JSONヘッダーの設定
+		w.Header().Set("Content-Type", "application/json")
+		
+		// JSONエンコードとレスポンス送信
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			log.Printf("エラー: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+	})
+	
+	// PUTエンドポイント - Supabase連携
+	mux.HandleFunc("/api/add/", func(w http.ResponseWriter, r *http.Request) {
+		// PUTリクエスト以外は拒否
+		if r.Method != http.MethodPut {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		
+		// URLからIDパラメータを抽出
+		idRegex := regexp.MustCompile(`/api/add/(\d+)`)
+		matches := idRegex.FindStringSubmatch(r.URL.Path)
+		if len(matches) < 2 {
+			http.Error(w, "Invalid URL format", http.StatusBadRequest)
+			return
+		}
+		
+		// IDを数値に変換
+		id, err := strconv.Atoi(matches[1])
+		if err != nil {
+			http.Error(w, "Invalid ID format", http.StatusBadRequest)
+			return
+		}
+		
+		// リクエストボディの読み取り
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "リクエストボディの読み取りに失敗: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		defer r.Body.Close()
+		
+		// JSONのデコード
+		var todo TodoItem
+		if err := json.Unmarshal(body, &todo); err != nil {
+			http.Error(w, "無効なJSONデータ: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		
+		// IDを設定
+		todo.ID = id
+		
 		// Supabaseに保存
 		updatedItem, err := saveToSupabase(todo)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"success": false,
-				"error":   "Supabaseへの保存に失敗: " + err.Error(),
-			})
+			http.Error(w, "Supabaseへの保存に失敗: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		// 成功レスポンスを返す
-		c.JSON(http.StatusOK, gin.H{
+		
+		// 成功レスポンスを作成
+		response := map[string]interface{}{
 			"success":     true,
 			"message":     "TODOアイテムをSupabaseに保存しました",
 			"updatedItem": updatedItem,
-		})
+		}
+		
+		// JSONヘッダーの設定
+		w.Header().Set("Content-Type", "application/json")
+		
+		// JSONエンコードとレスポンス送信
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			log.Printf("エラー: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
 	})
-
-	r.Run(":8081")
+	
+	// サーバー起動（CORSミドルウェア適用）
+	log.Println("サーバーを8081ポートで起動中...")
+	log.Fatal(http.ListenAndServe(":8081", corsMiddleware(mux)))
 }
 
-// Supabaseにデータを保存する関数
+// Supabaseにデータを保存する関数（変更なし）
 func saveToSupabase(todo TodoItem) (map[string]interface{}, error) {
 	// リクエスト用のJSONデータを作成
 	now := time.Now().Format(time.RFC3339)
@@ -119,7 +205,7 @@ func saveToSupabase(todo TodoItem) (map[string]interface{}, error) {
 	defer resp.Body.Close()
 
 	// レスポンスの読み取り
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}

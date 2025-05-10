@@ -14,6 +14,7 @@ import Header from "./features/Header/Header";
 import { useState } from "react";
 import { Send } from "@mui/icons-material";
 import ListWrap from "./components/ListWrap/ListWrap";
+import { Count } from "./components/Count/Count";
 
 interface Lists {
   id: number;
@@ -29,7 +30,7 @@ interface ApiResponse {
   };
 }
 
-const App = () => {
+const App: React.FC = () => {
   const [text, setText] = useState("");
   const [lists, setLists] = useState<Lists[]>([]);
   const replaceText = text.replace(/[\s\u3000]/g, "");
@@ -174,6 +175,7 @@ const App = () => {
           </TableContainer>
         </ListWrap>
       </Layout>
+      <Count />
     </>
   );
 };
