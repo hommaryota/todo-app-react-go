@@ -7,7 +7,7 @@ import { fetcher } from "../../utils/fetcher";
 import { TodoList } from "../../types/api";
 
 const ListWrap = () => {
-  const { data, isLoading, error, mutate } = useSWR<TodoList[], Error>(
+  const { data, mutate } = useSWR<TodoList[], Error>(
     "http://localhost:8081/api/todo",
     fetcher
   );
