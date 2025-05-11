@@ -1,0 +1,5 @@
+name = "todo-app-react-go"
+compatibility_date = "2025-05-11"
+
+[assets]
+directory = "./frontend/dist"
