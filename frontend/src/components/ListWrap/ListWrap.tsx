@@ -11,6 +11,8 @@ const ListWrap = () => {
     "http://localhost:8081/api/todo",
     fetcher
   );
+  console.log(data);
+
   const [text, setText] = useState("");
   const replaceText = text.replace(/[\s\u3000]/g, "");
 
@@ -36,6 +38,16 @@ const ListWrap = () => {
     setText("");
   };
 
+  const handleCompleted = async (id: string) => {
+    const response = await fetch(`http://localhost:8081/api/todo`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    if (!response.ok) throw new Error("完了に失敗しました。");
+    mutate();
+  };
+
   const handleDeleteList = async (id: string) => {
     const response = await fetch(`http://localhost:8081/api/todo?id=${id}`, {
       method: "DELETE",
@@ -54,7 +66,11 @@ const ListWrap = () => {
         onChangeTextField={onChangeTextField}
         handleUpdateTodo={handleUpdateTodo}
       />
-      <TodoLists lists={data ?? []} handleDeleteList={handleDeleteList} />
+      <TodoLists
+        lists={data ?? []}
+        handleCompleted={handleCompleted}
+        handleDeleteList={handleDeleteList}
+      />
     </div>
   );
 };

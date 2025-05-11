@@ -12,11 +12,12 @@ import { TodoList } from "../../types/api";
 
 interface Props {
   lists: TodoList[];
+  handleCompleted: (id: string) => Promise<void>;
   handleDeleteList: (id: string) => Promise<void>;
 }
 
 export const TodoLists: React.FC<Props> = (props) => {
-  const { lists, handleDeleteList } = props;
+  const { lists, handleCompleted, handleDeleteList } = props;
 
   return (
     <TableContainer component={Paper}>
@@ -34,11 +35,19 @@ export const TodoLists: React.FC<Props> = (props) => {
               key={list.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
-              <TableCell component="th" scope="row">
+              <TableCell
+                component="th"
+                scope="row"
+                style={{
+                  textDecoration: list.flag ? "line-through" : "initial",
+                }}
+              >
                 {list.text}
               </TableCell>
               <TableCell align="right">
-                <Button variant="text">completed</Button>
+                <Button variant="text" onClick={() => handleCompleted(list.id)}>
+                  completed
+                </Button>
               </TableCell>
               <TableCell align="right">
                 <Button
