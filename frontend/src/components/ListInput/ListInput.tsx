@@ -3,6 +3,7 @@ import { Button, TextField } from "@mui/material";
 
 interface Props {
   text: string;
+  replaceText: string;
   onChangeTextField: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
@@ -10,9 +11,7 @@ interface Props {
 }
 
 export const ListInput: React.FC<Props> = (props) => {
-  const { text, onChangeTextField, handleUpdateTodo } = props;
-
-  const replaceText = text.replace(/[\s\u3000]/g, "");
+  const { text, replaceText, onChangeTextField, handleUpdateTodo } = props;
 
   return (
     <div>

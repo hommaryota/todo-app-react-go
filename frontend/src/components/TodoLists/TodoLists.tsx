@@ -8,11 +8,11 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { Lists } from "../../types/types";
+import { TodoList } from "../../types/api";
 
 interface Props {
-  lists: Lists[];
-  handleDeleteList: (id: number) => void;
+  lists: TodoList[];
+  handleDeleteList: () => void;
 }
 
 export const TodoLists: React.FC<Props> = (props) => {
@@ -21,13 +21,11 @@ export const TodoLists: React.FC<Props> = (props) => {
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
+        <TableHead style={{ backgroundColor: "gray" }}>
           <TableRow>
             <TableCell>text</TableCell>
             <TableCell align="right">completed</TableCell>
-            <TableCell align="right">
-              <Button variant="text">delete</Button>
-            </TableCell>
+            <TableCell align="right">delete</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

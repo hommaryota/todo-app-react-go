@@ -3,7 +3,6 @@ import { useCount } from "./hooks/useCount";
 
 export const CountArea: React.FC = () => {
   const { count, message, isLoading, updateCount } = useCount();
-  console.log(message);
 
   return (
     <>
@@ -24,7 +23,14 @@ export const CountArea: React.FC = () => {
             -
           </Button>
         </Stack>
-        {isLoading ? <span>読み込み中...</span> : <span>Count:{count}</span>}
+        {isLoading ? (
+          <span>読み込み中...</span>
+        ) : (
+          <>
+            <p>Count:{count}</p>
+            <p>{message}</p>
+          </>
+        )}
       </div>
     </>
   );
