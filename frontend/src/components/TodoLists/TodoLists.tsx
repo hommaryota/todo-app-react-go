@@ -12,7 +12,7 @@ import { TodoList } from "../../types/api";
 
 interface Props {
   lists: TodoList[];
-  handleDeleteList: () => void;
+  handleDeleteList: (id: string) => Promise<void>;
 }
 
 export const TodoLists: React.FC<Props> = (props) => {

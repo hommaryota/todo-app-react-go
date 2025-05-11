@@ -28,6 +28,15 @@ func generateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
 
+func removeTodoByID(todos []TodoItem, id string) ([]TodoItem, bool) {
+	for i, item := range todos {
+		if item.ID == id {
+			return append(todos[:i], todos[i+1:]...), true
+		}
+	}
+	return todos, false
+}
+
 func Todo(mux *http.ServeMux) {
 	todoList := &TodoList{
 		// 大文字のフィールド名で初期化
@@ -63,6 +72,21 @@ func Todo(mux *http.ServeMux) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusCreated)
 			json.NewEncoder(w).Encode(newItem)
+		case http.MethodDelete:
+			idToDelete := r.URL.Query().Get("id")
+			if idToDelete == "" {
+				http.Error(w, "ID is required", http.StatusBadRequest)
+			}
+			todoList.mu.Lock()
+			var found bool
+			todoList.Items, found = removeTodoByID(todoList.Items, idToDelete)
+			todoList.mu.Unlock()
+
+			if !found {
+				http.Error(w, "Todo not found", http.StatusNotFound)
+				return
+			}
+			json.NewEncoder(w).Encode(map[string]string{"status": "success"})
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}

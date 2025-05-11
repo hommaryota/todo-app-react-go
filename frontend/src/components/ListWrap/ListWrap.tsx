@@ -36,7 +36,15 @@ const ListWrap = () => {
     setText("");
   };
 
-  const handleDeleteList = () => {};
+  const handleDeleteList = async (id: string) => {
+    const response = await fetch(`http://localhost:8081/api/todo?id=${id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error("削除に失敗しました");
+    }
+    mutate();
+  };
 
   return (
     <div className={s.wrap}>
