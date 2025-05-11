@@ -3,3 +3,11 @@ compatibility_date = "2025-05-11"
 
 [assets]
 directory = "./frontend/dist"
+
+[[kv_namespaces]]
+binding = "COUNTER_KV"
+id = "ここにKVのIDを入れる"
+
+[[kv_namespaces]]
+binding = "TODO_KV"
+id = "ここにKVのIDを入れる"

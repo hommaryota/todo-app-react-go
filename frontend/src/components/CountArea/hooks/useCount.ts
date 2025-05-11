@@ -2,16 +2,17 @@
 import useSWR from "swr";
 import { Count } from "../../../types/api";
 import { fetcher } from "../../../utils/fetcher";
+import { API_URL } from "../../../utils/config";
 
 export function useCount() {
   const { data, isLoading, error, mutate } = useSWR<Count, Error>(
-    "http://localhost:8081/api/count",
+    `${API_URL}/api/count`,
     fetcher
   );
 
   const updateCount = async (operation: "increment" | "decrement") => {
     try {
-      const response = await fetch("http://localhost:8081/api/count", {
+      const response = await fetch(`${API_URL}/api/count`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

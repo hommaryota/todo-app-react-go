@@ -5,10 +5,11 @@ import { TodoLists } from "../TodoLists/TodoLists";
 import useSWR from "swr";
 import { fetcher } from "../../utils/fetcher";
 import { TodoList } from "../../types/api";
+import { API_URL } from "../../utils/config";
 
 const ListWrap = () => {
   const { data, mutate } = useSWR<TodoList[], Error>(
-    "http://localhost:8081/api/todo",
+    `${API_URL}/api/todo`,
     fetcher
   );
   console.log(data);
@@ -23,7 +24,7 @@ const ListWrap = () => {
   };
 
   const handleUpdateTodo = async () => {
-    const response = await fetch("http://localhost:8081/api/todo", {
+    const response = await fetch(`${API_URL}/api/todo`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
