@@ -9,9 +9,15 @@ export function useCount() {
     fetcher
   );
 
-  const increment = async () => {
+  const updateCount = async (operation: "increment" | "decrement") => {
     try {
-      const response = await fetch("http://localhost:8081/api/countup");
+      const response = await fetch("http://localhost:8081/api/count", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ operation }),
+      });
       if (!response.ok) throw new Error(`APIエラー: ${response.status}`);
       const newData = await response.json();
       mutate(newData, false);
@@ -22,25 +28,11 @@ export function useCount() {
     }
   };
 
-  const decrement = async () => {
-    try {
-      const response = await fetch("http://localhost:8081/api/countdown");
-      if (!response.ok) throw new Error(`APIエラー: ${response.status}`);
-      const newData = await response.json();
-      mutate(newData, false);
-      return newData;
-    } catch (error) {
-      console.error("Decrement error:", error);
-      throw error;
-    }
-  };
-
   return {
     count: data?.count ?? 0,
     message: data?.message,
     isLoading,
     error,
-    increment,
-    decrement,
+    updateCount,
   };
 }

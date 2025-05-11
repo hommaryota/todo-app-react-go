@@ -2,7 +2,6 @@ package count
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"sync"
 )
@@ -35,56 +34,49 @@ func (c *Counter) Decrement() int {
 	return c.count
 }
 
-func Count (mux *http.ServeMux){
+func Count(mux *http.ServeMux) {
 	counter := &Counter{count: 0}
 
-	mux.HandleFunc("/api/count",func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-		response := map[string]interface{}{
-			"count": counter.count,
-			"message": "カウントが実行されました",
-		}
-		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(response); err != nil {
-			log.Printf("エラー: %v", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		}
-	})
+	mux.HandleFunc("/api/count", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			response := map[string]interface{}{
+				"count":   counter.GetCount(),
+				"message": "カウント値を取得しました",
+			}
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(response)
 
-	mux.HandleFunc("/api/countup", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-		currentCount := counter.Increment()
-		response := map[string]interface{}{
-			"count": currentCount,
-			"message": "カウントが実行されました",
-		}
-		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(response); err != nil {
-			log.Printf("エラー: %v", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		}
-	})
+		case http.MethodPatch:
+			var requestData map[string]interface{}
+			if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
+				http.Error(w, "無効なリクエスト形式", http.StatusBadRequest)
+				return
+			}
+			var currentCount int
+			operation, ok := requestData["operation"].(string)
+			if !ok {
+				http.Error(w, "operation フィールドが必要です", http.StatusBadRequest)
+				return
+			}
 
-	mux.HandleFunc("/api/countdown", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
+			switch operation {
+			case "increment":
+				currentCount = counter.Increment()
+			case "decrement":
+				currentCount = counter.Decrement()
+			default:
+				http.Error(w, "不明な操作: "+operation, http.StatusBadRequest)
+				return
+			}
+			response := map[string]interface{}{
+				"count":   currentCount,
+				"message": "カウントが更新されました",
+			}
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(response)
+		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-		currentCount := counter.Decrement()
-		response := map[string]interface{}{
-			"count": currentCount,
-			"message": "カウントが実行されました",
-		}
-		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(response); err != nil {
-			log.Printf("エラー: %v", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 	})
 }
