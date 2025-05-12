@@ -1,0 +1,70 @@
+name: todo-app-react-go
+
+services:
+  - name: express-server
+    type: container
+    image:
+      name: ${KOYEB_ORGANIZATION}/express-server:latest
+      registry: docker
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - port: 3000
+        protocol: http
+    health:
+      path: /
+      port: 3000
+    env:
+      - name: NODE_ENV
+        value: production
+    depends_on:
+      - go-backend
+      - react-frontend
+    routes:
+      - path: /
+        port: 3000
+
+  - name: go-backend
+    type: container
+    image:
+      name: ${KOYEB_ORGANIZATION}/go-backend:latest
+      registry: docker
+    build:
+      dockerfile: backend/Dockerfile
+      context: ./backend
+    ports:
+      - port: 8081
+        protocol: http
+    health:
+      path: /api/count
+      port: 8081
+    routes:
+      - path: /api
+        port: 8081
+
+  - name: react-frontend
+    type: container
+    image:
+      name: ${KOYEB_ORGANIZATION}/react-frontend:latest
+      registry: docker
+    build:
+      dockerfile: frontend/Dockerfile
+      context: ./frontend
+    ports:
+      - port: 5173
+        protocol: http
+    env:
+      - name: NODE_ENV
+        value: production
+      - name: VITE_SUPABASE_URL
+        secret: VITE_SUPABASE_URL
+      - name: VITE_SUPABASE_KEY
+        secret: VITE_SUPABASE_KEY
+
+regions:
+  - ap-southeast-1
+
+scaling:
+  min: 1
+  max: 1
