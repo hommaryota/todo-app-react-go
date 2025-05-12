@@ -3,6 +3,7 @@ name: todo-app-react-go
 services:
   - name: express-server
     type: container
+    dockerfile: Dockerfile
     image:
       name: ${KOYEB_ORGANIZATION}/express-server:latest
       registry: docker
@@ -11,6 +12,7 @@ services:
       context: .
     ports:
       - port: 3000
+        http: "/"
         protocol: http
     health:
       path: /

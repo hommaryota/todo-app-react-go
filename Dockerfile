@@ -3,11 +3,15 @@ FROM node:22-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN npm install && \
+    npx tsc && \
+    cd frontend && \
+    npm install && \
+    npm run build
 
 COPY tsconfig.json ./
 COPY server.ts ./
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev","node", "dist/server.js"]
