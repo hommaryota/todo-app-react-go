@@ -14,4 +14,4 @@ COPY server.ts ./
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev","node", "dist/server.js"]
+CMD ["npm", "start"]
